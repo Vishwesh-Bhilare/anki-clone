@@ -9,11 +9,12 @@ import java.util.*;
 public class CardDAO {
 
     public void addCard(String q, String a) throws Exception {
-        String sql = "INSERT INTO cards(question, answer) VALUES(?, ?)";
+        String sql = "INSERT INTO cards(question, answer, next_review, interval_days) VALUES(?, ?, NOW(), ?)";
 
         try (Connection con = DB.connect(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, q);
             ps.setString(2, a);
+            ps.setInt(3, 1);
             ps.executeUpdate();
         }
     }
