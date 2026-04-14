@@ -4,17 +4,18 @@ import com.anki.dao.CardDAO;
 import com.anki.model.Card;
 
 import org.springframework.web.bind.annotation.*;
-import java.util.*;
+
+import java.util.List;
 
 @RestController
 @CrossOrigin
 public class CardController {
 
-    CardDAO dao = new CardDAO();
+    private final CardDAO dao = new CardDAO();
 
     @PostMapping("/add")
-    public void add(@RequestBody Map<String, String> data) throws Exception {
-        dao.addCard(data.get("question"), data.get("answer"));
+    public void add(@RequestBody AddCardRequest data) throws Exception {
+        dao.addCard(data.question(), data.answer());
     }
 
     @GetMapping("/review")
@@ -23,11 +24,11 @@ public class CardController {
     }
 
     @PostMapping("/answer")
-    public void answer(@RequestBody Map<String, String> data) throws Exception {
-        int id = Integer.parseInt(data.get("id"));
-        boolean correct = Boolean.parseBoolean(data.get("correct"));
-        int interval = Integer.parseInt(data.get("interval"));
-
-        dao.updateCard(id, correct, interval);
+    public void answer(@RequestBody AnswerRequest data) throws Exception {
+        dao.updateCard(data.id(), data.correct(), data.interval());
     }
+
+    public record AddCardRequest(String question, String answer) {}
+
+    public record AnswerRequest(int id, boolean correct, int interval) {}
 }
