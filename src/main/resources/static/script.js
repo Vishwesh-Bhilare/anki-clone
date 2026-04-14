@@ -12,11 +12,15 @@ async function addCard() {
   }
 
   try {
-    await fetch("/add", {
+    const res = await fetch("/add", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ question: q, answer: a })
     });
+
+    if (!res.ok) {
+      throw new Error(`Failed to add card (${res.status})`);
+    }
 
     document.getElementById("q").value = "";
     document.getElementById("a").value = "";
@@ -30,7 +34,12 @@ async function addCard() {
 
 async function startReview() {
   try {
-    let res = await fetch("/review");
+    const res = await fetch("/review");
+
+    if (!res.ok) {
+      throw new Error(`Failed to load cards (${res.status})`);
+    }
+
     cards = await res.json();
 
     if (!cards || cards.length === 0) {
@@ -68,7 +77,7 @@ async function submitAnswer(correct) {
   if (!currentCard) return;
 
   try {
-    await fetch("/answer", {
+    const res = await fetch("/answer", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -77,6 +86,10 @@ async function submitAnswer(correct) {
         interval: currentCard.interval_days
       })
     });
+
+    if (!res.ok) {
+      throw new Error(`Failed to submit answer (${res.status})`);
+    }
 
     currentIndex++;
 
