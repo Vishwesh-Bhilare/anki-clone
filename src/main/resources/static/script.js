@@ -1,47 +1,94 @@
-const API = ""; // same origin
+let cards = [];
+let currentIndex = 0;
+let currentCard = null;
 
 async function addCard() {
-  await fetch(API + "/add", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      question: document.getElementById("q").value,
-      answer: document.getElementById("a").value
-    })
-  });
+  const q = document.getElementById("q").value;
+  const a = document.getElementById("a").value;
 
-  alert("Added");
+  if (!q || !a) {
+    alert("Enter both question and answer");
+    return;
+  }
+
+  try {
+    await fetch("/add", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question: q, answer: a })
+    });
+
+    document.getElementById("q").value = "";
+    document.getElementById("a").value = "";
+
+    alert("Card Added");
+  } catch (err) {
+    console.error(err);
+    alert("Failed to add card");
+  }
 }
 
-async function loadReview() {
-  let res = await fetch(API + "/review");
-  let data = await res.json();
+async function startReview() {
+  try {
+    let res = await fetch("/review");
+    cards = await res.json();
 
-  let div = document.getElementById("review");
-  div.innerHTML = "";
+    if (!cards || cards.length === 0) {
+      alert("No cards to review");
+      return;
+    }
 
-  data.forEach(c => {
-    let el = document.createElement("div");
-
-    el.innerHTML = `
-      <b>${c.question}</b><br>
-      <button onclick="showAnswer('${c.answer}', ${c.id}, ${c.interval_days})">Show</button>
-    `;
-
-    div.appendChild(el);
-  });
+    currentIndex = 0;
+    showCard();
+  } catch (err) {
+    console.error(err);
+    alert("Failed to load cards");
+  }
 }
 
-function showAnswer(ans, id, interval) {
-  let correct = confirm(ans + "\n\nDid you get it right?");
+function showCard() {
+  if (!cards[currentIndex]) return;
 
-  fetch(API + "/answer", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id, correct, interval })
-  });
+  currentCard = cards[currentIndex];
 
-  loadReview();
+  document.getElementById("card").style.display = "block";
+  document.getElementById("question").innerText = currentCard.question;
+
+  document.getElementById("answerBox").style.display = "none";
 }
 
-loadReview();
+function showAnswer() {
+  if (!currentCard) return;
+
+  document.getElementById("answerBox").style.display = "block";
+  document.getElementById("answer").innerText = currentCard.answer;
+}
+
+async function submitAnswer(correct) {
+  if (!currentCard) return;
+
+  try {
+    await fetch("/answer", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: currentCard.id,
+        correct: correct,
+        interval: currentCard.interval_days
+      })
+    });
+
+    currentIndex++;
+
+    if (currentIndex >= cards.length) {
+      alert("Review complete");
+      document.getElementById("card").style.display = "none";
+      return;
+    }
+
+    showCard();
+  } catch (err) {
+    console.error(err);
+    alert("Failed to submit answer");
+  }
+}

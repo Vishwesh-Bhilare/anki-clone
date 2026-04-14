@@ -8,16 +8,31 @@
 
 <h1>Anki Clone</h1>
 
+<!-- ADD CARD -->
 <div>
   <h2>Add Card</h2>
   <input id="q" placeholder="Question"><br>
   <input id="a" placeholder="Answer"><br>
-  <button onclick="addCard()">Add</button>
+  <button onclick="addCard()">Add Card</button>
 </div>
 
+<hr>
+
+<!-- REVIEW SECTION -->
 <div>
   <h2>Review</h2>
-  <div id="review"></div>
+  <button onclick="startReview()">Start Review</button>
+
+  <div id="card" style="margin-top:20px; display:none;">
+    <p id="question"></p>
+    <button onclick="showAnswer()">Show Answer</button>
+
+    <div id="answerBox" style="display:none; margin-top:10px;">
+      <p id="answer"></p>
+      <button onclick="submitAnswer(true)">Correct</button>
+      <button onclick="submitAnswer(false)">Wrong</button>
+    </div>
+  </div>
 </div>
 
 <script src="script.js"></script>

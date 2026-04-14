@@ -1,63 +1,35 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
-                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
+<project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.anki</groupId>
   <artifactId>anki-clone</artifactId>
   <version>1.0</version>
-  <name>anki-clone</name>
 
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <version>3.2.0</version>
-    <relativePath/>
   </parent>
 
-  <properties>
-    <java.version>17</java.version>
-  </properties>
-
   <dependencies>
-
-    <!-- Spring Boot Web -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
 
-    <!-- MySQL Connector (FIXED) -->
     <dependency>
-      <groupId>com.mysql</groupId>
+      <groupId>mysql</groupId>
       <artifactId>mysql-connector-j</artifactId>
-      <scope>runtime</scope>
+      <version>8.2.0</version>
     </dependency>
-
   </dependencies>
 
   <build>
     <plugins>
-
-      <!-- Spring Boot Plugin -->
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
       </plugin>
-
-      <!-- Compiler (ensures compatibility) -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>17</source>
-          <target>17</target>
-        </configuration>
-      </plugin>
-
     </plugins>
   </build>
-
 </project>
