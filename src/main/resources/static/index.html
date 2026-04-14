@@ -1,39 +1,42 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Anki Clone</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<main class="container">
+  <h1>Anki Clone</h1>
 
-<h1>Anki Clone</h1>
+  <section class="panel">
+    <h2>Add Card</h2>
+    <label for="q">Question</label>
+    <input id="q" placeholder="Question">
+    <label for="a">Answer</label>
+    <input id="a" placeholder="Answer">
+    <button onclick="addCard()">Add Card</button>
+  </section>
 
-<!-- ADD CARD -->
-<div>
-  <h2>Add Card</h2>
-  <input id="q" placeholder="Question"><br>
-  <input id="a" placeholder="Answer"><br>
-  <button onclick="addCard()">Add Card</button>
-</div>
+  <section class="panel">
+    <h2>Review</h2>
+    <button onclick="startReview()">Start Review</button>
 
-<hr>
+    <div id="card" class="card">
+      <p id="question" class="question"></p>
+      <button onclick="showAnswer()">Show Answer</button>
 
-<!-- REVIEW SECTION -->
-<div>
-  <h2>Review</h2>
-  <button onclick="startReview()">Start Review</button>
-
-  <div id="card" style="margin-top:20px; display:none;">
-    <p id="question"></p>
-    <button onclick="showAnswer()">Show Answer</button>
-
-    <div id="answerBox" style="display:none; margin-top:10px;">
-      <p id="answer"></p>
-      <button onclick="submitAnswer(true)">Correct</button>
-      <button onclick="submitAnswer(false)">Wrong</button>
+      <div id="answerBox" class="answer-box">
+        <p id="answer" class="answer"></p>
+        <div class="actions">
+          <button onclick="submitAnswer(true)">Correct</button>
+          <button class="secondary" onclick="submitAnswer(false)">Wrong</button>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
+  </section>
+</main>
 
 <script src="script.js"></script>
 </body>

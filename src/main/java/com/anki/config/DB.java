@@ -5,22 +5,25 @@ import java.sql.DriverManager;
 import java.sql.Statement;
 
 public class DB {
-    private static final String DEFAULT_URL = "jdbc:h2:file:./data/anki_clone;MODE=MySQL;DATABASE_TO_LOWER=TRUE;AUTO_SERVER=TRUE";
-    private static final String DEFAULT_USER = "sa";
+    private static final String DEFAULT_URL = "jdbc:mysql://localhost:3306/anki_clone?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+    private static final String DEFAULT_USER = "root";
     private static final String DEFAULT_PASSWORD = "";
 
     public static Connection connect() throws Exception {
-        String url = getEnvOrDefault("DB_URL", DEFAULT_URL);
-        String user = getEnvOrDefault("DB_USER", DEFAULT_USER);
-        String password = getEnvOrDefault("DB_PASSWORD", DEFAULT_PASSWORD);
+        String url = getConfig("DB_URL", "spring.datasource.url", DEFAULT_URL);
+        String user = getConfig("DB_USER", "spring.datasource.username", DEFAULT_USER);
+        String password = getConfig("DB_PASSWORD", "spring.datasource.password", DEFAULT_PASSWORD);
 
         Connection connection = DriverManager.getConnection(url, user, password);
         ensureSchema(connection);
         return connection;
     }
 
-    private static String getEnvOrDefault(String key, String fallback) {
-        String value = System.getenv(key);
+    private static String getConfig(String envKey, String propertyKey, String fallback) {
+        String value = System.getenv(envKey);
+        if (value == null || value.isBlank()) {
+            value = System.getProperty(propertyKey);
+        }
         return (value == null || value.isBlank()) ? fallback : value;
     }
 
