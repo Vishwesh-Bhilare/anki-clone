@@ -26,13 +26,30 @@ function isConnectionError(err) {
   return err instanceof TypeError;
 }
 
+function shouldRetryWithAnotherCandidate(response, baseUrl) {
+  const isSameOriginCandidate = baseUrl === "";
+  const isNotFoundOnStaticServer = response.status === 404;
+  const isMethodRejectedOnStaticServer = response.status === 405;
+
+  return (
+    isSameOriginCandidate &&
+    (isNotFoundOnStaticServer || isMethodRejectedOnStaticServer)
+  );
+}
+
 async function fetchWithFallback(path, options) {
   const candidates = getApiCandidates();
   let lastError = null;
 
   for (const baseUrl of candidates) {
     try {
-      return await fetch(`${baseUrl}${path}`, options);
+      const response = await fetch(`${baseUrl}${path}`, options);
+
+      if (shouldRetryWithAnotherCandidate(response, baseUrl)) {
+        continue;
+      }
+
+      return response;
     } catch (err) {
       lastError = err;
 
