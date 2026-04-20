@@ -1,15 +1,54 @@
 let cards = [];
 let currentIndex = 0;
 let currentCard = null;
-const API_BASE =
-  (window.location.hostname === "127.0.0.1" ||
-    window.location.hostname === "localhost") &&
-  window.location.port === "5500"
-    ? "http://127.0.0.1:8080"
-    : "";
 
-function apiUrl(path) {
-  return `${API_BASE}${path}`;
+const DEV_SERVER_PORT = "8080";
+
+function getApiCandidates() {
+  const sameOrigin = "";
+
+  const isLocalHost =
+    window.location.hostname === "127.0.0.1" ||
+    window.location.hostname === "localhost";
+
+  if (!isLocalHost) {
+    return [sameOrigin];
+  }
+
+  const hostBasedApi = `${window.location.protocol}//${window.location.hostname}:${DEV_SERVER_PORT}`;
+  const localhostApi = `${window.location.protocol}//localhost:${DEV_SERVER_PORT}`;
+  const loopbackApi = `${window.location.protocol}//127.0.0.1:${DEV_SERVER_PORT}`;
+
+  return [...new Set([sameOrigin, hostBasedApi, localhostApi, loopbackApi])];
+}
+
+function isConnectionError(err) {
+  return err instanceof TypeError;
+}
+
+async function fetchWithFallback(path, options) {
+  const candidates = getApiCandidates();
+  let lastError = null;
+
+  for (const baseUrl of candidates) {
+    try {
+      return await fetch(`${baseUrl}${path}`, options);
+    } catch (err) {
+      lastError = err;
+
+      if (!isConnectionError(err)) {
+        throw err;
+      }
+    }
+  }
+
+  throw lastError ?? new Error("Unable to reach API");
+}
+
+function showApiDownMessage(action) {
+  alert(
+    `${action} failed because the backend API is not reachable. Start the Spring app on port 8080 and try again.`
+  );
 }
 
 async function addCard() {
@@ -22,7 +61,7 @@ async function addCard() {
   }
 
   try {
-    const res = await fetch(apiUrl("/add"), {
+    const res = await fetchWithFallback("/add", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ question: q, answer: a })
@@ -38,13 +77,19 @@ async function addCard() {
     alert("Card Added");
   } catch (err) {
     console.error(err);
+
+    if (isConnectionError(err)) {
+      showApiDownMessage("Add card");
+      return;
+    }
+
     alert("Failed to add card");
   }
 }
 
 async function startReview() {
   try {
-    const res = await fetch(apiUrl("/review"));
+    const res = await fetchWithFallback("/review");
 
     if (!res.ok) {
       throw new Error(`Failed to load cards (${res.status})`);
@@ -61,6 +106,12 @@ async function startReview() {
     showCard();
   } catch (err) {
     console.error(err);
+
+    if (isConnectionError(err)) {
+      showApiDownMessage("Load cards");
+      return;
+    }
+
     alert("Failed to load cards");
   }
 }
@@ -87,7 +138,7 @@ async function submitAnswer(correct) {
   if (!currentCard) return;
 
   try {
-    const res = await fetch(apiUrl("/answer"), {
+    const res = await fetchWithFallback("/answer", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -112,6 +163,12 @@ async function submitAnswer(correct) {
     showCard();
   } catch (err) {
     console.error(err);
+
+    if (isConnectionError(err)) {
+      showApiDownMessage("Submit answer");
+      return;
+    }
+
     alert("Failed to submit answer");
   }
 }
