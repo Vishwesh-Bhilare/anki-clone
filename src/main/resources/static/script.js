@@ -1,6 +1,16 @@
 let cards = [];
 let currentIndex = 0;
 let currentCard = null;
+const API_BASE =
+  (window.location.hostname === "127.0.0.1" ||
+    window.location.hostname === "localhost") &&
+  window.location.port === "5500"
+    ? "http://127.0.0.1:8080"
+    : "";
+
+function apiUrl(path) {
+  return `${API_BASE}${path}`;
+}
 
 async function addCard() {
   const q = document.getElementById("q").value;
@@ -12,7 +22,7 @@ async function addCard() {
   }
 
   try {
-    const res = await fetch("/add", {
+    const res = await fetch(apiUrl("/add"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ question: q, answer: a })
@@ -34,7 +44,7 @@ async function addCard() {
 
 async function startReview() {
   try {
-    const res = await fetch("/review");
+    const res = await fetch(apiUrl("/review"));
 
     if (!res.ok) {
       throw new Error(`Failed to load cards (${res.status})`);
@@ -77,7 +87,7 @@ async function submitAnswer(correct) {
   if (!currentCard) return;
 
   try {
-    const res = await fetch("/answer", {
+    const res = await fetch(apiUrl("/answer"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
