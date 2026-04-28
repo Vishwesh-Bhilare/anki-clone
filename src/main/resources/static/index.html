@@ -10,7 +10,13 @@
 <main class="container">
   <h1>Anki Clone</h1>
 
-  <section class="panel">
+  <nav class="tabs">
+    <button class="tab active" data-tab="add" onclick="switchTab('add')">Add Card</button>
+    <button class="tab" data-tab="review" onclick="switchTab('review')">Review</button>
+    <button class="tab" data-tab="cards" onclick="switchTab('cards')">Card Status</button>
+  </nav>
+
+  <section id="tab-add" class="panel tab-panel active">
     <h2>Add Card</h2>
     <label for="q">Question</label>
     <input id="q" placeholder="Question">
@@ -19,7 +25,7 @@
     <button onclick="addCard()">Add Card</button>
   </section>
 
-  <section class="panel">
+  <section id="tab-review" class="panel tab-panel">
     <h2>Review</h2>
     <button onclick="startReview()">Start Review</button>
 
@@ -34,6 +40,31 @@
           <button class="secondary" onclick="submitAnswer(false)">Wrong</button>
         </div>
       </div>
+    </div>
+  </section>
+
+  <section id="tab-cards" class="panel tab-panel">
+    <div class="table-header">
+      <h2>Card Status</h2>
+      <button onclick="loadCardStatus()">Refresh</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>Question</th>
+          <th>Answer</th>
+          <th>Interval (days)</th>
+          <th>Next Review</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody id="cardStatusBody">
+        <tr><td colspan="6" class="empty">No cards loaded</td></tr>
+        </tbody>
+      </table>
     </div>
   </section>
 </main>

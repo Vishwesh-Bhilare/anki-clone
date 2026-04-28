@@ -68,6 +68,22 @@ function showApiDownMessage(action) {
   );
 }
 
+function switchTab(tabName) {
+  document.querySelectorAll(".tab").forEach((tab) => {
+    tab.classList.toggle("active", tab.dataset.tab === tabName);
+  });
+
+  document.querySelectorAll(".tab-panel").forEach((panel) => {
+    panel.classList.remove("active");
+  });
+
+  document.getElementById(`tab-${tabName}`).classList.add("active");
+
+  if (tabName === "cards") {
+    loadCardStatus();
+  }
+}
+
 async function addCard() {
   const q = document.getElementById("q").value;
   const a = document.getElementById("a").value;
@@ -187,5 +203,152 @@ async function submitAnswer(correct) {
     }
 
     alert("Failed to submit answer");
+  }
+}
+
+function formatDate(value) {
+  if (!value) {
+    return "-";
+  }
+
+  return new Date(value).toLocaleString();
+}
+
+function toDateTimeLocal(value) {
+  if (!value) {
+    return "";
+  }
+
+  const date = new Date(value);
+  const tzOffset = date.getTimezoneOffset() * 60000;
+  return new Date(date.getTime() - tzOffset).toISOString().slice(0, 16);
+}
+
+function renderCardStatusTable(cardsData) {
+  const body = document.getElementById("cardStatusBody");
+
+  if (!cardsData || cardsData.length === 0) {
+    body.innerHTML = '<tr><td colspan="6" class="empty">No cards found</td></tr>';
+    return;
+  }
+
+  body.innerHTML = cardsData
+    .map(
+      (card) => `
+      <tr data-id="${card.id}">
+        <td>${card.id}</td>
+        <td><input data-field="question" value="${escapeHtml(card.question)}" /></td>
+        <td><input data-field="answer" value="${escapeHtml(card.answer)}" /></td>
+        <td><input data-field="interval_days" type="number" min="1" value="${card.interval_days}" /></td>
+        <td><input data-field="next_review" type="datetime-local" value="${toDateTimeLocal(card.next_review)}" /></td>
+        <td>
+          <div class="row-actions">
+            <button class="secondary" onclick="saveCard(${card.id}, this)">Save</button>
+            <button class="danger" onclick="deleteCard(${card.id})">Delete</button>
+          </div>
+        </td>
+      </tr>
+    `
+    )
+    .join("");
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+async function loadCardStatus() {
+  try {
+    const res = await fetchWithFallback("/cards");
+
+    if (!res.ok) {
+      throw new Error(`Failed to load card status (${res.status})`);
+    }
+
+    const allCards = await res.json();
+    renderCardStatusTable(allCards);
+  } catch (err) {
+    console.error(err);
+
+    if (isConnectionError(err)) {
+      showApiDownMessage("Load card status");
+      return;
+    }
+
+    alert("Failed to load card status");
+  }
+}
+
+async function saveCard(id, button) {
+  const row = button.closest("tr");
+  const question = row.querySelector('[data-field="question"]').value.trim();
+  const answer = row.querySelector('[data-field="answer"]').value.trim();
+  const intervalValue = Number(row.querySelector('[data-field="interval_days"]').value);
+  const nextReviewValue = row.querySelector('[data-field="next_review"]').value;
+
+  if (!question || !answer || !intervalValue || !nextReviewValue) {
+    alert("Question, answer, interval, and next review date are required.");
+    return;
+  }
+
+  try {
+    const res = await fetchWithFallback(`/cards/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        question,
+        answer,
+        interval_days: intervalValue,
+        next_review: new Date(nextReviewValue).toISOString()
+      })
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to save card (${res.status})`);
+    }
+
+    alert(`Card ${id} updated`);
+    loadCardStatus();
+  } catch (err) {
+    console.error(err);
+
+    if (isConnectionError(err)) {
+      showApiDownMessage("Save card");
+      return;
+    }
+
+    alert("Failed to save card");
+  }
+}
+
+async function deleteCard(id) {
+  if (!confirm(`Delete card ${id}?`)) {
+    return;
+  }
+
+  try {
+    const res = await fetchWithFallback(`/cards/${id}`, {
+      method: "DELETE"
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to delete card (${res.status})`);
+    }
+
+    loadCardStatus();
+  } catch (err) {
+    console.error(err);
+
+    if (isConnectionError(err)) {
+      showApiDownMessage("Delete card");
+      return;
+    }
+
+    alert("Failed to delete card");
   }
 }

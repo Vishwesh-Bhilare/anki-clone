@@ -19,6 +19,10 @@ button.secondary {
   background: #6b7280;
 }
 
+button.danger {
+  background: #dc2626;
+}
+
 input {
   width: 100%;
   margin-top: 6px;
@@ -35,9 +39,26 @@ label {
 }
 
 .container {
-  max-width: 720px;
+  max-width: 980px;
   margin: 30px auto;
   padding: 0 16px;
+}
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.tab {
+  margin-top: 0;
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.tab.active {
+  background: #2563eb;
+  color: white;
 }
 
 .panel {
@@ -46,6 +67,14 @@ label {
   padding: 20px;
   margin-bottom: 20px;
   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+.tab-panel {
+  display: none;
+}
+
+.tab-panel.active {
+  display: block;
 }
 
 .card {
@@ -69,4 +98,58 @@ label {
 .actions {
   display: flex;
   gap: 10px;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.table-header button {
+  margin-top: 0;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 14px;
+}
+
+th,
+td {
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+  padding: 10px;
+  vertical-align: top;
+}
+
+th {
+  font-size: 13px;
+  text-transform: uppercase;
+  color: #4b5563;
+}
+
+td input {
+  margin: 0;
+}
+
+.row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.row-actions button {
+  margin-top: 0;
+  padding: 8px 10px;
+}
+
+.empty {
+  text-align: center;
+  color: #6b7280;
 }
