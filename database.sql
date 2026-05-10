@@ -1,10 +1,32 @@
 CREATE DATABASE anki_clone;
 USE anki_clone;
 
+CREATE TABLE decks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE cards (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    deck_id INT NULL,
     question TEXT NOT NULL,
     answer TEXT NOT NULL,
     next_review TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    interval_days INT DEFAULT 1
+    interval_days INT DEFAULT 1,
+    FOREIGN KEY (deck_id) REFERENCES decks(id)
+);
+
+CREATE TABLE review_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    card_id INT NOT NULL,
+    rating TINYINT NOT NULL,
+    reviewed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (card_id) REFERENCES cards(id)
+);
+
+CREATE TABLE tags (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
